@@ -1,7 +1,7 @@
 appbundler
 =============
 
-A fork of the [Java Application Bundler](https://svn.java.net/svn/appbundler~svn) transformed into a maven artifact.
+A fork of the [Java Application Bundler](https://svn.java.net/svn/appbundler~svn) transformed into a maven artifact
 with the following changes:
 
 - The native binary is created as universal (32/64)
