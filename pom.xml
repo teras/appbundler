@@ -2,38 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.panayotis</groupId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <artifactId>appbundler</artifactId>
     <name>Java Application Bundler</name>
     <description>A mavenized version of the Java Application Bundler https://svn.java.net/svn/appbundler~svn</description>
     <url>https://github.com/teras/appbundler</url>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <cc.compiler>gcc</cc.compiler>
-        <cc.compiler.arch32>-arch i386</cc.compiler.arch32>
-        <cc.compiler.arch64>-arch x86_64</cc.compiler.arch64>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>1.10.1</version>
-            <type>jar</type>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.7.0</version>
                 <configuration>
-                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
             <plugin>
@@ -42,44 +24,36 @@
                 <executions>
                     <execution>
                         <id>compile</id>
-                        <phase>process-classes</phase>
-                        <configuration>
-                            <target>
-                                <exec executable="/usr/libexec/java_home" outputproperty="libexec_javahome" />
-                                <condition property="javahome" value="${env.JAVA_HOME}" else="${libexec_javahome}">
-                                    <isset property="env.JAVA_HOME"/>
-                                </condition>
-                                <exec executable="xcrun" outputproperty="osx.sdk.dir">
-                                    <arg value="--show-sdk-path" />
-                                </exec>
-                                <exec executable="${cc.compiler}" failonerror="true">
-                                    <arg line="${cc.compiler.arch32} ${cc.compiler.arch64}"/>
-                                    <arg value="-I"/>
-                                    <arg value="${javahome}/include"/>
-                                    <arg value="-I"/>
-                                    <arg value="${javahome}/include/darwin"/>
-                                    <arg value="-o"/>
-                                    <arg value="${project.build.outputDirectory}/com/oracle/appbundler/JavaAppLauncher"/>
-                                    <arg value='-DLIBJLI_DYLIB="${javahome}/jre/lib/jli/libjli.dylib"'/>
-                                    <arg value="-framework"/>
-                                    <arg value="Cocoa"/>
-                                    <arg value="-F"/>
-                                    <arg value="${javahome}/../.."/>
-                                    <arg value="-isysroot"/>
-                                    <arg value="${osx.sdk.dir}"/>
-                                    <arg value="-mmacosx-version-min=10.7"/>
-                                    <arg value="-fobjc-exceptions"/>
-                                    <arg value="-std=c99"/>
-                                    <arg value="src/main/objc/main.m"/>
-                                </exec>
-                                <zip destfile="${project.build.outputDirectory}/com/oracle/appbundler/res.zip">
-                                    <fileset dir="src/main/l10n"/>
-                                </zip>
-                            </target>
-                        </configuration>
+                        <phase>package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
+                        <configuration>
+                            <target>
+                                <property name="jarout" value="target/${project.artifactId}-${project.version}.jar"/>
+                                <exec executable="ant">
+                                    <arg value="package"/>
+                                </exec>
+                                <echo file="target/empty/.none" message=""/>
+                                <zip destfile="target/emptyres/com/oracle/appbundler/res.zip" basedir="target/empty"/>
+                                <jar destfile="${jarout}">
+                                    <zipfileset src="appbundler/bin/appbundler-1.0ea.jar" excludes="com/oracle/appbundler/res.zip"/>
+                                </jar>
+                                <jar destfile="${jarout}" update="true" basedir="target/emptyres"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>                    
+                        <configuration>
+                            <target>
+                                <ant target="clean"/>
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
