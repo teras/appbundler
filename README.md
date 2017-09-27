@@ -18,6 +18,8 @@ with the following changes:
 - Allows overriding of passed JVM options by the bundled app itself via java.util.Preferences **(contributed by Hendrik Schreiber)**
 - Allows writing arbitrary key-value pairs to `Info.plist` via `plistentry`
 - Allows setting of environment variables via `Info.plist`
+- Allows running the Application as `privileged` - e.g. for Setup **(Contributed by Gerry Weißbach)**
+- Allows specifying a JNLP file (`jnlplaunchername`) as alternative to the `mainclassname` which can then be launched without hassle when the Application is signed. See [How to sign (dynamic) JNLP files for OSX 10.8.4 and Gatekeeper](http://stackoverflow.com/questions/16958130/how-to-sign-dynamic-jnlp-files-for-osx-10-8-4-and-gatekeeper) **(Contributed by Gerry Weißbach)**
 
 These are the system properties passed to the JVM:
 
