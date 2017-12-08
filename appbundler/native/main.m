@@ -805,7 +805,7 @@ NSString * findJDKDylib (
         NSTask *task = [[NSTask alloc] init];
         [task setLaunchPath:@"/usr/libexec/java_home"];
 
-        NSArray *args = [NSArray arrayWithObjects: @"-v", [NSString stringWithFormat:@"1.%i%@", jvmRequired, exactMatch?@"":@"+"], nil];
+        NSArray *args = [NSArray arrayWithObjects: @"-v", [NSString stringWithFormat:(jvmRequired > 8 ? @"%i%@" : @"1.%i%@"), jvmRequired, exactMatch?@"":@"+"], nil];
         [task setArguments:args];
 
         NSPipe *stdout = [NSPipe pipe];
@@ -870,8 +870,11 @@ NSString * findJDKDylib (
             if (isDebugging) {
                 DLog (@"JDK version qualifies");
             }
-            return [[outRead stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
-                                    stringByAppendingPathComponent:@"jre"];
+            NSString* dylibpath = [outRead stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:[[dylibpath stringByAppendingPathComponent:@"jre"] stringByAppendingPathComponent:@LIBJLI_DY_LIB]])
+                return [dylibpath stringByAppendingPathComponent:@"jre"];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:[dylibpath stringByAppendingPathComponent:@LIBJLI_DY_LIB]])
+                return dylibpath;
         }
     }
     @catch (NSException *exception)
@@ -893,12 +896,9 @@ int extractMajorVersion (NSString *vstring)
     if (vstring == nil) { return 0; }
 
 //  Expecting either a java version of form 1.X, 1.X.Y_ZZ or jdk1.X.Y_ZZ.
-//  Strip off everything from start of req string up to and including the "1."
-    NSUInteger vstart = [vstring rangeOfString:@"1."].location;
-
-    if (vstart != NSNotFound) {
+    if ([vstring hasPrefix:@"1."]) {
         // this is the version < 9 layout. Remove the leading 1.
-        vstring = [vstring substringFromIndex:(vstart+2)];
+        vstring = [vstring substringFromIndex:2];
     }
 
 //  Now find the dot after the major version number, if present.
