@@ -9,6 +9,7 @@
     <url>https://github.com/teras/appbundler</url>
 
     <build>
+        <sourceDirectory>appbundler/src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -128,6 +129,9 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <failOnError>false</failOnError>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -147,4 +151,17 @@
             </build>
         </profile>
     </profiles>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.8.2</version>
+            <scope>provided</scope>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+    <properties>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+    </properties>
 </project>
